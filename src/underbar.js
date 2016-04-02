@@ -217,11 +217,29 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    return _.reduce(arguments, function(acc, item, i){
+      if (i > 0){
+        for (var key in item){
+          acc[key] = item[key]
+        }
+      }
+      return acc;
+    }, obj);
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    return _.reduce(arguments, function(acc, item, i){
+      if (i > 0){
+        for (var key in item){
+          if (acc[key] === undefined){
+            acc[key] = item[key];
+          }
+        }
+      }
+      return acc;
+    }, obj);
   };
 
 
