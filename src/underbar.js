@@ -282,7 +282,57 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
+
+  // beforeEach(function() {
+  //         add = function(a, b) {
+  //           return a + b;
+  //         };
+
+  //         memoAdd = _.memoize(add);
+  //       });
+
+  //       it('should produce the same result as the non-memoized version', function() {
+  //         expect(add(1, 2)).to.equal(3);
+  //         expect(memoAdd(1, 2)).to.equal(3);
+  //       });
+
+  //       it('should give different results for different arguments', function() {
+  //         expect(memoAdd(1, 2)).to.equal(3);
+  //         expect(memoAdd(3, 4)).to.equal(7);
+  //       });
+
   _.memoize = function(func) {
+    var result;
+    var storeArguments = [];
+    var storeResults = [];
+    var index = 0;
+
+    return function(){
+      console.log(arguments[0]);
+      var argIndex = -1;
+      _.each(storeArguments, function(item, i){
+        for(var j = item.length; j--;) {
+          console.log('looping ',item[j], arguments[j]);
+          if(item[j] !== arguments[j][0]){
+            return false;
+          }
+        }
+        argIndex = i;
+      })
+      console.log(argIndex);
+      // var argIndex = _.indexOf(storeArguments, arguments)
+      if (argIndex < 0){
+        result = func.apply(this, arguments);
+
+        storeArguments.push(arguments)
+        console.log(storeArguments,arguments);
+        storeResults.push(result);
+      } else {
+        result = storeResults[argIndex];
+      }
+
+      return result;
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
