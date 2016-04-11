@@ -283,57 +283,34 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
 
-  // beforeEach(function() {
-  //         add = function(a, b) {
-  //           return a + b;
-  //         };
-
-  //         memoAdd = _.memoize(add);
-  //       });
-
-  //       it('should produce the same result as the non-memoized version', function() {
-  //         expect(add(1, 2)).to.equal(3);
-  //         expect(memoAdd(1, 2)).to.equal(3);
-  //       });
-
-  //       it('should give different results for different arguments', function() {
-  //         expect(memoAdd(1, 2)).to.equal(3);
-  //         expect(memoAdd(3, 4)).to.equal(7);
-  //       });
-
   _.memoize = function(func) {
-    var result;
-    var storeArguments = [];
-    var storeResults = [];
-    var index = 0;
+    var storedValues = {};
 
-    return function(){
-      console.log(arguments[0]);
-      var argIndex = -1;
-      _.each(storeArguments, function(item, i){
-        for(var j = item.length; j--;) {
-          console.log('looping ',item[j], arguments[j]);
-          if(item[j] !== arguments[j][0]){
-            return false;
-          }
+    return function() {
+      var currentArguments = [].slice.call(arguments, 1);
+      for (var storedArg in storedValues){
+        if (storedArg == currentArguments){
+          return storedValues[storedArg];
         }
-        argIndex = i;
-      })
-      console.log(argIndex);
-      // var argIndex = _.indexOf(storeArguments, arguments)
-      if (argIndex < 0){
-        result = func.apply(this, arguments);
-
-        storeArguments.push(arguments)
-        console.log(storeArguments,arguments);
-        storeResults.push(result);
-      } else {
-        result = storeResults[argIndex];
       }
 
-      return result;
+      storedValues[currentArguments] = func.apply(this, arguments);
+      return storedValues[currentArguments];
     }
+  }
+
+  /* EXAMPLE USAGE OF MEMOIZE
+  
+  var add = function(a, b) {
+    console.log( a + b);
   };
+
+  var memoAdd = _.memoize(add);
+  
+  memoAdd(1, 2);
+  memoAdd(3, 4);
+
+  */
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -341,9 +318,13 @@
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
-  };
 
+  _.delay = function(func, wait) {
+    var args = [].slice.call(arguments, 2);
+    setTimeout(function(){
+      func.apply(this, args);
+    }, wait);
+  };
 
   /**
    * ADVANCED COLLECTION OPERATIONS
@@ -355,7 +336,16 @@
   // TIP: This function's test suite will ask that you not modify the original
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
+
   _.shuffle = function(array) {
+    var result = array.slice();
+    for (var i = 0; i < result.length - 1; i++){
+      var randomIndex = Math.floor(Math.random() * (array.length - i));
+      var holder = result[i + randomIndex];
+      result[i + randomIndex] = result[i];
+      result[i] = holder;
+    }
+    return result;
   };
 
 
